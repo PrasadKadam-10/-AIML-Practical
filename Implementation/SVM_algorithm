@@ -1,0 +1,39 @@
+# SVR Regression Implementation
+
+# Step 1: Import Libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.svm import SVR
+from sklearn.preprocessing import StandardScaler
+
+# Step 2: Prepare Dataset (sample data)
+X = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
+y = np.array([1.2, 1.9, 3.2, 3.8, 5.1, 5.8, 7.2, 7.9, 9.1, 10.2])
+
+# Step 3: Feature Scaling (important for SVR)
+sc_X = StandardScaler()
+sc_y = StandardScaler()
+X_scaled = sc_X.fit_transform(X)
+y_scaled = sc_y.fit_transform(y.reshape(-1, 1))
+
+# Step 4: Train SVR Model
+# Use regularization parameters to avoid overfitting
+svr_model = SVR(kernel='rbf', C=10, epsilon=0.2, gamma=0.1)
+svr_model.fit(X_scaled, y_scaled.ravel())
+
+# Step 5: Predict for a new value
+X_test = np.array([[6.5]])
+X_test_scaled = sc_X.transform(X_test)
+y_pred_scaled = svr_model.predict(X_test_scaled)
+y_pred = sc_y.inverse_transform(y_pred_scaled.reshape(-1, 1))
+print("Predicted value for X = 6.5:", y_pred[0][0])
+
+# Step 6: Visualize SVR Results
+plt.scatter(X, y, color='red', label='Original Data')
+plt.plot(X, sc_y.inverse_transform(svr_model.predict(X_scaled).reshape(-1, 1)), 
+         color='blue', label='SVR Prediction')
+plt.title('Support Vector Regression (SVR)')
+plt.xlabel('X')
+plt.ylabel('y')
+plt.legend()
+plt.show()
