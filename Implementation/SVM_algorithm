@@ -1,39 +1,60 @@
-# SVR Regression Implementation
+# Practical: Support Vector Regression (SVR)
+# Objective: Use SVR with an RBF kernel to predict continuous values
+#            and visualize the regression fit on sample data.
 
-# Step 1: Import Libraries
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 
-# Step 2: Prepare Dataset (sample data)
-X = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
-y = np.array([1.2, 1.9, 3.2, 3.8, 5.1, 5.8, 7.2, 7.9, 9.1, 10.2])
+# --------------------------------------------------
+# Step 1: Prepare dataset
+# X = number of rooms, y = approximate house price (lakhs)
+# --------------------------------------------------
+num_rooms  = np.array([[1], [2], [3], [4], [5],
+                        [6], [7], [8], [9], [10]])
+house_price = np.array([5.0, 7.5, 9.8, 12.0, 15.2,
+                         17.8, 20.5, 23.1, 26.0, 28.8])
 
-# Step 3: Feature Scaling (important for SVR)
-sc_X = StandardScaler()
-sc_y = StandardScaler()
-X_scaled = sc_X.fit_transform(X)
-y_scaled = sc_y.fit_transform(y.reshape(-1, 1))
+# --------------------------------------------------
+# Step 2: Feature scaling (required for SVR)
+# --------------------------------------------------
+sc_rooms = StandardScaler()
+sc_price = StandardScaler()
 
-# Step 4: Train SVR Model
-# Use regularization parameters to avoid overfitting
+X_sc = sc_rooms.fit_transform(num_rooms)
+y_sc = sc_price.fit_transform(house_price.reshape(-1, 1))
+
+# --------------------------------------------------
+# Step 3: Train the SVR model
+# --------------------------------------------------
 svr_model = SVR(kernel='rbf', C=10, epsilon=0.2, gamma=0.1)
-svr_model.fit(X_scaled, y_scaled.ravel())
+svr_model.fit(X_sc, y_sc.ravel())
 
-# Step 5: Predict for a new value
-X_test = np.array([[6.5]])
-X_test_scaled = sc_X.transform(X_test)
-y_pred_scaled = svr_model.predict(X_test_scaled)
-y_pred = sc_y.inverse_transform(y_pred_scaled.reshape(-1, 1))
-print("Predicted value for X = 6.5:", y_pred[0][0])
+# --------------------------------------------------
+# Step 4: Predict for a new input
+# --------------------------------------------------
+test_rooms    = np.array([[6.5]])
+test_sc       = sc_rooms.transform(test_rooms)
+pred_sc       = svr_model.predict(test_sc)
+pred_price    = sc_price.inverse_transform(pred_sc.reshape(-1, 1))
 
-# Step 6: Visualize SVR Results
-plt.scatter(X, y, color='red', label='Original Data')
-plt.plot(X, sc_y.inverse_transform(svr_model.predict(X_scaled).reshape(-1, 1)), 
-         color='blue', label='SVR Prediction')
+print(f"Predicted house price for 6.5 rooms: {pred_price[0][0]:.2f} lakhs")
+
+# --------------------------------------------------
+# Step 5: Plot actual data vs SVR prediction
+# --------------------------------------------------
+fitted_prices = sc_price.inverse_transform(
+    svr_model.predict(X_sc).reshape(-1, 1))
+
+plt.figure(figsize=(7, 5))
+plt.scatter(num_rooms, house_price,
+            color='tomato', label='Actual Data', zorder=5)
+plt.plot(num_rooms, fitted_prices,
+         color='steelblue', label='SVR Prediction')
 plt.title('Support Vector Regression (SVR)')
-plt.xlabel('X')
-plt.ylabel('y')
+plt.xlabel('Number of Rooms')
+plt.ylabel('House Price (Lakhs)')
 plt.legend()
+plt.tight_layout()
 plt.show()

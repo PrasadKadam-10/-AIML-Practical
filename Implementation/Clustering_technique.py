@@ -1,69 +1,79 @@
-# Step 1: Import Libraries
+# Practical: Clustering Techniques
+# Objective: Group students based on their academic performance
+#            using K-Means, Hierarchical, and DBSCAN clustering.
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans, DBSCAN
 from scipy.cluster.hierarchy import dendrogram, linkage
 
-# Step 2: Create Sample Data
-data = {
-    'Student': ['Alice', 'Bob', 'Charlie', 'David', 'Eva', 'Frank', 'Grace', 'Hannah'],
-    'Math': [85, 78, 92, 70, 65, 88, 55, 60],
-    'Science': [80, 75, 90, 72, 60, 85, 50, 58]
+# --------------------------------------------------
+# Step 1: Create sample dataset
+# --------------------------------------------------
+records = {
+    'Name'   : ['Amit', 'Priya', 'Ravi', 'Sneha', 'Karan',
+                 'Meera', 'Arun', 'Divya'],
+    'Physics': [82, 74, 91, 68, 62, 85, 53, 57],
+    'Chemistry': [78, 71, 88, 70, 58, 83, 48, 55]
 }
 
-df = pd.DataFrame(data)
-print("Original Data:")
+df = pd.DataFrame(records)
+print("Student Marks Dataset:")
 print(df)
 
-# Step 3: Select Features for Clustering
-X = df[['Math', 'Science']]
+# Features used for clustering
+features = df[['Physics', 'Chemistry']]
 
-# ========================
+# --------------------------------------------------
 # K-MEANS CLUSTERING
-# ========================
-kmeans = KMeans(n_clusters=2, random_state=0)
-df['KMeans_Cluster'] = kmeans.fit_predict(X)
+# --------------------------------------------------
+km = KMeans(n_clusters=2, random_state=10, n_init=10)
+df['KMeans_Label'] = km.fit_predict(features)
 
-print("\nK-Means Clusters:")
-print(df[['Student', 'KMeans_Cluster']])
+print("\nK-Means Cluster Assignments:")
+print(df[['Name', 'KMeans_Label']])
 
-# Plot K-Means Clusters
-plt.figure(figsize=(6,4))
-plt.scatter(df['Math'], df['Science'], c=df['KMeans_Cluster'], cmap='viridis', s=100)
-plt.title('K-Means Clustering of Students')
-plt.xlabel('Math Score')
-plt.ylabel('Science Score')
-for i, txt in enumerate(df['Student']):
-    plt.annotate(txt, (df['Math'][i]+0.5, df['Science'][i]+0.5))
+plt.figure(figsize=(6, 4))
+plt.scatter(df['Physics'], df['Chemistry'],
+            c=df['KMeans_Label'], cmap='viridis', s=100)
+for idx, name in enumerate(df['Name']):
+    plt.annotate(name, (df['Physics'][idx] + 0.5, df['Chemistry'][idx] + 0.5))
+plt.title('K-Means Clustering (Student Marks)')
+plt.xlabel('Physics Score')
+plt.ylabel('Chemistry Score')
+plt.tight_layout()
 plt.show()
 
-# ========================
+# --------------------------------------------------
 # HIERARCHICAL CLUSTERING
-# ========================
-linked = linkage(X, method='ward')
-plt.figure(figsize=(8,4))
-dendrogram(linked, labels=df['Student'].values)
+# --------------------------------------------------
+link_matrix = linkage(features, method='ward')
+
+plt.figure(figsize=(8, 4))
+dendrogram(link_matrix, labels=df['Name'].values)
 plt.title('Hierarchical Clustering Dendrogram')
-plt.xlabel('Students')
+plt.xlabel('Student Name')
 plt.ylabel('Distance')
+plt.tight_layout()
 plt.show()
 
-# ========================
+# --------------------------------------------------
 # DBSCAN CLUSTERING
-# ========================
-dbscan = DBSCAN(eps=7, min_samples=2)
-df['DBSCAN_Cluster'] = dbscan.fit_predict(X)
+# --------------------------------------------------
+db = DBSCAN(eps=8, min_samples=2)
+df['DBSCAN_Label'] = db.fit_predict(features)
 
-print("\nDBSCAN Clusters:")
-print(df[['Student', 'DBSCAN_Cluster']])
+print("\nDBSCAN Cluster Assignments:")
+print(df[['Name', 'DBSCAN_Label']])
 
-# Plot DBSCAN Clusters
-plt.figure(figsize=(6,4))
-plt.scatter(df['Math'], df['Science'], c=df['DBSCAN_Cluster'], cmap='plasma', s=100)
-plt.title('DBSCAN Clustering of Students')
-plt.xlabel('Math Score')
-plt.ylabel('Science Score')
-for i, txt in enumerate(df['Student']):
-    plt.annotate(txt, (df['Math'][i]+0.5, df['Science'][i]+0.5))
+plt.figure(figsize=(6, 4))
+plt.scatter(df['Physics'], df['Chemistry'],
+            c=df['DBSCAN_Label'], cmap='plasma', s=100)
+for idx, name in enumerate(df['Name']):
+    plt.annotate(name, (df['Physics'][idx] + 0.5, df['Chemistry'][idx] + 0.5))
+plt.title('DBSCAN Clustering (Student Marks)')
+plt.xlabel('Physics Score')
+plt.ylabel('Chemistry Score')
+plt.tight_layout()
 plt.show()

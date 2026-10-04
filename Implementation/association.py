@@ -1,33 +1,77 @@
+# Practical: Association Analysis
+# Objective: Study the relationship between two variables using
+#            Pearson correlation and visualize it with a scatter plot.
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Create dataset
-data = {
-    "Hours_Studied": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    "Marks": [35, 40, 45, 52, 58, 65, 70, 78, 85, 92]
-}
+# ------------------------------------------------------------------
+# Step 1: Prepare the dataset
+# We record how many hours of sleep students got the night before
+# an exam and the score they achieved.
+# ------------------------------------------------------------------
+sleep_hours = [4, 5, 5, 6, 6, 7, 7, 8, 8, 9]
+exam_scores  = [48, 55, 52, 61, 63, 70, 74, 80, 83, 91]
 
-df = pd.DataFrame(data)
+student_data = pd.DataFrame({
+    "Sleep_Hours": sleep_hours,
+    "Exam_Score" : exam_scores
+})
 
-# Display dataset
-print("Dataset:")
-print(df)
+print("=" * 40)
+print("       Student Performance Dataset")
+print("=" * 40)
+print(student_data.to_string(index=False))
+print()
 
-# Calculate correlation
-correlation = df["Hours_Studied"].corr(df["Marks"])
+# ------------------------------------------------------------------
+# Step 2: Compute Pearson Correlation Coefficient
+# A value close to +1 means a strong positive association.
+# ------------------------------------------------------------------
+r = student_data["Sleep_Hours"].corr(student_data["Exam_Score"])
 
-print("\nCorrelation between Hours Studied and Marks:")
-print(correlation)
+print(f"Pearson Correlation Coefficient (r) : {r:.4f}")
 
-# Plot relationship
+if r >= 0.8:
+    strength = "strong positive"
+elif r >= 0.5:
+    strength = "moderate positive"
+elif r > 0:
+    strength = "weak positive"
+else:
+    strength = "negative or no"
+
+print(f"Interpretation: There is a {strength} association")
+print(f"between sleep hours and exam scores.\n")
+
+# ------------------------------------------------------------------
+# Step 3: Visualize the association
+# ------------------------------------------------------------------
+plt.figure(figsize=(7, 5))
+
 sns.scatterplot(
-    x="Hours_Studied",
-    y="Marks",
-    data=df
+    data=student_data,
+    x="Sleep_Hours",
+    y="Exam_Score",
+    color="steelblue",
+    s=80,
+    edgecolor="black"
 )
 
-plt.title("Association Between Hours Studied and Marks")
-plt.xlabel("Hours Studied (Independent Variable)")
-plt.ylabel("Marks (Dependent Variable)")
+# Add a trend line using seaborn regplot (linear fit)
+sns.regplot(
+    data=student_data,
+    x="Sleep_Hours",
+    y="Exam_Score",
+    scatter=False,
+    color="tomato",
+    label="Trend Line"
+)
+
+plt.title("Association Between Sleep Hours and Exam Score", fontsize=13)
+plt.xlabel("Sleep Hours (per night before exam)")
+plt.ylabel("Exam Score (out of 100)")
+plt.legend()
+plt.tight_layout()
 plt.show()

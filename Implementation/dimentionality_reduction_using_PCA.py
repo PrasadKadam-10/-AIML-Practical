@@ -1,35 +1,55 @@
-# Step 0: Import libraries
+# Practical: Dimensionality Reduction using PCA
+# Objective: Reduce the number of features in the Iris dataset
+#            from 4 to 2 principal components and visualize the result.
+
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 
-# Step 1: Load dataset (example: Iris dataset)
-from sklearn.datasets import load_iris
-data = load_iris()
-X = data.data       # Features
-y = data.target     # Labels
+# --------------------------------------------------
+# Step 1: Load the Iris dataset
+# --------------------------------------------------
+iris = load_iris()
+X = iris.data      # 4 feature columns
+y = iris.target    # class labels (0, 1, 2)
 
-# Step 2: Standardize features
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+print("Original feature shape:", X.shape)
 
-# Step 3: Apply PCA
-# Reduce to 2 principal components for visualization
+# --------------------------------------------------
+# Step 2: Standardize the features
+# PCA is sensitive to scale, so we normalize first.
+# --------------------------------------------------
+normalizer = StandardScaler()
+X_norm = normalizer.fit_transform(X)
+
+# --------------------------------------------------
+# Step 3: Apply PCA — reduce to 2 components
+# --------------------------------------------------
 pca = PCA(n_components=2)
-X_pca = pca.fit_transform(X_scaled)
+X_reduced = pca.fit_transform(X_norm)
 
-# Step 4: Explained variance
-print("Explained variance ratio:", pca.explained_variance_ratio_)
-print("Sum of explained variance:", sum(pca.explained_variance_ratio_))
+print("Reduced feature shape:", X_reduced.shape)
+print("Explained variance per component:", pca.explained_variance_ratio_)
+print("Total variance retained: {:.2f}%".format(
+    sum(pca.explained_variance_ratio_) * 100))
 
-# Step 5: Visualize PCA result
-plt.figure(figsize=(8,6))
-for i, target_name in enumerate(data.target_names):
-    plt.scatter(X_pca[y==i, 0], X_pca[y==i, 1], label=target_name)
-plt.xlabel('PC1')
-plt.ylabel('PC2')
-plt.title('PCA of Iris Dataset')
+# --------------------------------------------------
+# Step 4: Plot the 2D projection
+# --------------------------------------------------
+colors = ['darkorange', 'steelblue', 'green']
+plt.figure(figsize=(8, 6))
+
+for class_id, class_name in enumerate(iris.target_names):
+    mask = y == class_id
+    plt.scatter(X_reduced[mask, 0], X_reduced[mask, 1],
+                label=class_name, color=colors[class_id], s=60)
+
+plt.title('PCA — Iris Dataset (2 Principal Components)')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
 plt.legend()
+plt.tight_layout()
 plt.show()
