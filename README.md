@@ -1,2 +1,3 @@
-# AIML-Practical
-📊 Hands-on AIML practical implementations Covering machine learning concepts, algorithms, and real-world experiments.
+AIML-Practical
+
+🤖 Practical implementations of Artificial Intelligence and Machine Learning concepts, algorithms, and experiments.
